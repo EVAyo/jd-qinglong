@@ -55,7 +55,6 @@ public class ScheduleService {
                 continue;
             }
             if (qa.getQCommand() == QCommand.GET_NEW_CK_REQUIRE_SCAN_QR || qa.getQCommand() == QCommand.GET_NEW_CK_WAIT_CK) {
-                log.info("schedule process " + qq + " : " + qa.getQCommand());
                 MyChromeClient myChromeClient = driverFactory.getCacheMyChromeClient(String.valueOf(qq));
                 if (myChromeClient != null) {
                     JDScreenBean screen = jdService.getScreen(myChromeClient);
@@ -63,12 +62,14 @@ public class ScheduleService {
                         botService.sendMsgWithRetry(qq, "二维码失效，等待生成新的...");
                         botService.genQQQR(qq, qa, false);
                     } else if (screen.getPageStatus() == JDScreenBean.PageStatus.REQUIRE_SCANQR) {
-                        log.info("怎么还不扫二维码");
+                        log.info(qq + "，你怎么还不扫二维码" + botService.getOpTimeRemain(qq));
                     } else if (screen.getPageStatus() == JDScreenBean.PageStatus.WAIT_QR_CONFIRM) {
                         botService.sendMsgWithRetry(qq, "扫描成功，请确认...");
                     } else if (screen.getPageStatus() == JDScreenBean.PageStatus.SUCCESS_CK) {
                         qa.setStatus(ProcessStatus.FINISH);
                         botService.sendMsgWithRetry(qq, "获取ck成功：" + screen.getCk().toString());
+                        myChromeClient.setTrackCK(screen.getCk().toString());
+                        botService.sendMsgWithRetry(qq, "请输入备注：");
                         QA qa1 = new QA(System.currentTimeMillis(), "", QCommand.GET_NEW_CK_REMARK, ProcessStatus.WAIT_NEXT_Q);
                         qqAiFlow.getQas().add(qa1);
                     } else if (screen.getPageStatus() == JDScreenBean.PageStatus.WAIT_CUBE_SMSCODE) {

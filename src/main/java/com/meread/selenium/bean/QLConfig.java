@@ -27,6 +27,7 @@ public class QLConfig {
     private int capacity = 99;
     //当前剩余多少
     private int remain = 99;
+    private QLLoginType qlLoginType;
 
     public boolean isValid() {
         boolean verify1 = !StringUtils.isEmpty(qlUrl);
@@ -45,7 +46,7 @@ public class QLConfig {
          */
         TOKEN("openId");
 
-        private String desc;
+        private final String desc;
 
         QLLoginType(String desc) {
             this.desc = desc;
@@ -55,8 +56,6 @@ public class QLConfig {
             return desc;
         }
     }
-
-    private QLLoginType qlLoginType;
 
 
 }

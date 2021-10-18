@@ -27,6 +27,7 @@
             display: flex;
             flex-direction: column;
         }
+
         html {
             height: 100%;
         }
@@ -38,9 +39,11 @@
             padding: 6px 5px 4px 5px;
             border-bottom: 1px outset;
         }
+
         #status {
             text-align: center;
         }
+
         #sendCtrlAltDelButton {
             position: fixed;
             top: 0px;
@@ -83,7 +86,7 @@
         // credentials to authenticate
         function credentialsAreRequired(e) {
             const password = prompt("Password Required:");
-            rfb.sendCredentials({ password: password });
+            rfb.sendCredentials({password: password});
         }
 
         // When this function is called we have received
@@ -157,17 +160,17 @@
             url = 'ws';
         }
         url += '://' + host;
-        if(port) {
+        if (port) {
             url += ':' + port;
         }
         url += '/' + path;
 
         // Creating a new RFB object will start a new connection
         rfb = new RFB(document.getElementById('screen'), url,
-            { credentials: { password: password } });
+            {credentials: {password: password}});
 
         // Add listeners to important events from the RFB module
-        rfb.addEventListener("connect",  connectedToServer);
+        rfb.addEventListener("connect", connectedToServer);
         rfb.addEventListener("disconnect", disconnectedFromServer);
         rfb.addEventListener("credentialsrequired", credentialsAreRequired);
         rfb.addEventListener("desktopname", updateDesktopName);

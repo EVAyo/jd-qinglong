@@ -38,6 +38,13 @@ import java.util.regex.Pattern;
 @Slf4j
 @Profile({"default", "local"})
 public class WebDriverManagerLocal extends BaseWebDriverManager {
+    public static final Pattern PATTERN = Pattern.compile("--port=(\\d+)");
+    @Autowired
+    private WSManager wsManager;
+
+    @Autowired
+    private BotService botService;
+
     public WebDriverManagerLocal(@Value("${chrome.driver.path}") String chromeDriverPath,
                                  @Autowired RestTemplate restTemplate,
                                  @Autowired ThreadPoolTaskExecutor threadPoolTaskExecutor,
@@ -49,9 +56,6 @@ public class WebDriverManagerLocal extends BaseWebDriverManager {
                                  @Value("${SE_NODE_MAX_SESSIONS}") String maxSessionFromProps) {
         super(chromeDriverPath, restTemplate, threadPoolTaskExecutor, resourceLoader, headless, envPath, opTimeout, chromeTimeout, maxSessionFromProps);
     }
-
-    @Autowired
-    private WSManager wsManager;
 
     /**
      * 和grid同步chrome状态，清理失效的session，并移除本地缓存
@@ -142,8 +146,6 @@ public class WebDriverManagerLocal extends BaseWebDriverManager {
             e.printStackTrace();
         }
     }
-
-    public static final Pattern PATTERN = Pattern.compile("--port=(\\d+)");
 
     private Set<Integer> getSystemChromes() {
         Set<Integer> servicePorts = new HashSet<>();
@@ -256,12 +258,16 @@ public class WebDriverManagerLocal extends BaseWebDriverManager {
                         threadPoolTaskExecutor.execute(() -> quit(myChrome));
                         log.info("destroy chrome : " + sessionId);
                     }
-                    clients.remove(userTrackId);
-                    myChrome.setUserTrackId(null);
+
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    MyChromeClient client = clients.remove(myChrome.getUserTrackId());
+                    if (client != null && client.getLoginType() == LoginType.QQBOT) {
+                        botService.exit(Long.parseLong(myChrome.getUserTrackId()));
+                    }
+                    myChrome.setUserTrackId(null);
                 }
-
                 break;
             }
         }

@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONPath;
 import com.amihaiemil.docker.Container;
 import com.amihaiemil.docker.Containers;
 import com.amihaiemil.docker.UnixDocker;
+import com.meread.selenium.bean.LoginType;
 import com.meread.selenium.bean.MyChrome;
 import com.meread.selenium.bean.MyChromeClient;
 import com.meread.selenium.bean.SelenoidStatus;
@@ -51,6 +52,10 @@ public class WebDriverManagerSelenoid extends BaseWebDriverManager {
     private String seleniumHubUrl;
     @Value("${selenium.hub.status.url}")
     private String seleniumHubStatusUrl;
+    @Autowired
+    private WSManager wsManager;
+    @Autowired
+    private BotService botService;
 
     public WebDriverManagerSelenoid(@Value("${chrome.driver.path}") String chromeDriverPath,
                                     @Autowired RestTemplate restTemplate,
@@ -63,9 +68,6 @@ public class WebDriverManagerSelenoid extends BaseWebDriverManager {
                                     @Value("${SE_NODE_MAX_SESSIONS}") String maxSessionFromProps) {
         super(chromeDriverPath, restTemplate, threadPoolTaskExecutor, resourceLoader, headless, envPath, opTimeout, chromeTimeout, maxSessionFromProps);
     }
-
-    @Autowired
-    private WSManager wsManager;
 
     @Override
     public void createChromeOptions() {
@@ -131,7 +133,19 @@ public class WebDriverManagerSelenoid extends BaseWebDriverManager {
                 log.warn("quit a chrome");
             }
         }
-        cleanClients(removedChromeSessionId);
+
+        for (String s : removedChromeSessionId) {
+            releaseWebDriver(s, true);
+        }
+
+        //clean clients
+        for (Map.Entry<String, MyChromeClient> stringMyChromeClientEntry : clients.entrySet()) {
+            MyChromeClient client = stringMyChromeClientEntry.getValue();
+            if (client.isExpire()) {
+                releaseWebDriver(client.getChromeSessionId(), false);
+            }
+        }
+
         int shouldCreate = CAPACITY - chromes.size();
         if (shouldCreate > 0) {
             try {
@@ -163,17 +177,6 @@ public class WebDriverManagerSelenoid extends BaseWebDriverManager {
             }
         }
         return null;
-    }
-
-    private void cleanClients(Set<String> removedChromeSessionId) {
-        Iterator<Map.Entry<String, MyChromeClient>> iterator = clients.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, MyChromeClient> entry = iterator.next();
-            String chromeSessionId = entry.getValue().getChromeSessionId();
-            if (chromeSessionId == null || removedChromeSessionId.contains(chromeSessionId)) {
-                iterator.remove();
-            }
-        }
     }
 
     public SelenoidStatus getGridStatus() {
@@ -392,12 +395,15 @@ public class WebDriverManagerSelenoid extends BaseWebDriverManager {
                         threadPoolTaskExecutor.execute(() -> myChrome.getWebDriver().quit());
                         log.info("destroy chrome : " + sessionId);
                     }
-                    clients.remove(userTrackId);
-                    myChrome.setUserTrackId(null);
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    MyChromeClient client = clients.remove(myChrome.getUserTrackId());
+                    if (client != null && client.getLoginType() == LoginType.QQBOT) {
+                        botService.exit(Long.parseLong(myChrome.getUserTrackId()));
+                    }
+                    myChrome.setUserTrackId(null);
                 }
-
                 break;
             }
         }

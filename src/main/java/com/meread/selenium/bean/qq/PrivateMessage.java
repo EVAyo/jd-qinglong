@@ -24,100 +24,100 @@ public class PrivateMessage {
     private long time;
     private long user_id;
 
-    public void setFont(int font) {
-        this.font = font;
-    }
-
     public int getFont() {
         return font;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setFont(int font) {
+        this.font = font;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public void setMessage_id(long message_id) {
-        this.message_id = message_id;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public long getMessage_id() {
         return message_id;
     }
 
-    public void setMessage_type(String message_type) {
-        this.message_type = message_type;
+    public void setMessage_id(long message_id) {
+        this.message_id = message_id;
     }
 
     public String getMessage_type() {
         return message_type;
     }
 
-    public void setPost_type(String post_type) {
-        this.post_type = post_type;
+    public void setMessage_type(String message_type) {
+        this.message_type = message_type;
     }
 
     public String getPost_type() {
         return post_type;
     }
 
-    public void setRaw_message(String raw_message) {
-        this.raw_message = raw_message;
+    public void setPost_type(String post_type) {
+        this.post_type = post_type;
     }
 
     public String getRaw_message() {
         return raw_message;
     }
 
-    public void setSelf_id(long self_id) {
-        this.self_id = self_id;
+    public void setRaw_message(String raw_message) {
+        this.raw_message = raw_message;
     }
 
     public long getSelf_id() {
         return self_id;
     }
 
-    public void setSender(Sender sender) {
-        this.sender = sender;
+    public void setSelf_id(long self_id) {
+        this.self_id = self_id;
     }
 
     public Sender getSender() {
         return sender;
     }
 
-    public void setSub_type(String sub_type) {
-        this.sub_type = sub_type;
+    public void setSender(Sender sender) {
+        this.sender = sender;
     }
 
     public String getSub_type() {
         return sub_type;
     }
 
-    public void setTarget_id(long target_id) {
-        this.target_id = target_id;
+    public void setSub_type(String sub_type) {
+        this.sub_type = sub_type;
     }
 
     public long getTarget_id() {
         return target_id;
     }
 
-    public void setTime(long time) {
-        this.time = time;
+    public void setTarget_id(long target_id) {
+        this.target_id = target_id;
     }
 
     public long getTime() {
         return time;
     }
 
-    public void setUser_id(long user_id) {
-        this.user_id = user_id;
+    public void setTime(long time) {
+        this.time = time;
     }
 
     public long getUser_id() {
         return user_id;
+    }
+
+    public void setUser_id(long user_id) {
+        this.user_id = user_id;
     }
 
 }

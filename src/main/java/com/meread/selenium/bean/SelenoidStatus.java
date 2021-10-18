@@ -16,9 +16,9 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SelenoidStatus {
+    Map<String, JSONObject> sessions;
     private int total;
     private int used;
     private int queued;
     private int pending;
-    Map<String, JSONObject> sessions;
 }

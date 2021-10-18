@@ -2,7 +2,6 @@ package com.meread.selenium.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Created by yangxg on 2021/9/3
@@ -12,6 +11,41 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 public class JDScreenBean {
+    private String screen;
+    private String qr;
+    private JDCookie ck;
+    private PageStatus pageStatus;
+    //手机验证码重新获取倒计时
+    private int authCodeCountDown;
+    //登录按钮是否可点击
+    private boolean canClickLogin;
+    //获取验证码是否可点击
+    private boolean canSendAuth;
+    //为了防止前端一直占用webdriver，5分钟要释放掉
+    private Long sessionTimeOut;
+    //统计信息
+    private StatClient statClient;
+    //截屏时间
+    private long snapshotTime;
+    //需要让前端提示的消息
+    private String msg;
+    //验证码
+    private CaptchaImg captchaImg;
+    public JDScreenBean(String screen, String qr, PageStatus pageStatus) {
+        this.screen = screen;
+        this.qr = qr;
+        this.pageStatus = pageStatus;
+        this.snapshotTime = System.currentTimeMillis();
+    }
+
+    public JDScreenBean(String screen, String qr, PageStatus pageStatus, JDCookie ck) {
+        this.screen = screen;
+        this.qr = qr;
+        this.pageStatus = pageStatus;
+        this.ck = ck;
+        this.snapshotTime = System.currentTimeMillis();
+    }
+
     public enum PageStatus {
         EMPTY_URL("空白页面 data:"),
         VERIFY_FAILED("验证失败，请重新验证"),
@@ -33,6 +67,7 @@ public class JDScreenBean {
         AGREE_AGREEMENT("若您输入的手机号未注册，将为您直接注册，注册即视为同意"),
         INTERNAL_ERROR("抛异常了");
         private final String desc;
+
         PageStatus(String s) {
             this.desc = s;
         }
@@ -40,40 +75,5 @@ public class JDScreenBean {
         public String getDesc() {
             return desc;
         }
-    }
-    private String screen;
-    private String qr;
-    private JDCookie ck;
-    private PageStatus pageStatus;
-    //手机验证码重新获取倒计时
-    private int authCodeCountDown;
-    //登录按钮是否可点击
-    private boolean canClickLogin;
-    //获取验证码是否可点击
-    private boolean canSendAuth;
-    //为了防止前端一直占用webdriver，5分钟要释放掉
-    private Long sessionTimeOut;
-    //统计信息
-    private StatClient statClient;
-    //截屏时间
-    private long snapshotTime;
-    //需要让前端提示的消息
-    private String msg;
-    //验证码
-    private CaptchaImg captchaImg;
-
-    public JDScreenBean(String screen,String qr, PageStatus pageStatus) {
-        this.screen = screen;
-        this.qr = qr;
-        this.pageStatus = pageStatus;
-        this.snapshotTime = System.currentTimeMillis();
-    }
-
-    public JDScreenBean(String screen,String qr, PageStatus pageStatus,JDCookie ck) {
-        this.screen = screen;
-        this.qr = qr;
-        this.pageStatus = pageStatus;
-        this.ck = ck;
-        this.snapshotTime = System.currentTimeMillis();
     }
 }

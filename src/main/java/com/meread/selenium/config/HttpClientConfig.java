@@ -26,6 +26,7 @@ public class HttpClientConfig {
 
     /**
      * HttpClient连接池
+     *
      * @return
      */
     @Bean
@@ -38,17 +39,19 @@ public class HttpClientConfig {
 
     /**
      * 创建RequestConfig
+     *
      * @return
      */
     @Bean
     public RequestConfig requestConfig() {
         return RequestConfig.custom().setConnectTimeout(connectTimeout)
-            .setConnectionRequestTimeout(connectionRequestTimeout).setSocketTimeout(socketTimeout)
-            .build();
+                .setConnectionRequestTimeout(connectionRequestTimeout).setSocketTimeout(socketTimeout)
+                .build();
     }
 
     /**
      * 创建HttpClient
+     *
      * @param manager
      * @param config
      * @return
@@ -56,6 +59,6 @@ public class HttpClientConfig {
     @Bean
     public CloseableHttpClient httpClient(HttpClientConnectionManager manager, RequestConfig config) {
         return HttpClientBuilder.create().setConnectionManager(manager).setDefaultRequestConfig(config)
-            .build();
+                .build();
     }
 }

@@ -20,7 +20,7 @@ public class ScriptPython {
             process = Runtime.getRuntime().exec(new String[]{"/Users/yangxg/java/my-project-2021/selenium-test/docker-arm/gatgap.py", "arg1", "arg2"});
             mProcess = process;
         } catch (Exception e) {
-            System.out.println("Exception Raised" + e.toString());
+            System.out.println("Exception Raised" + e);
         }
         InputStream stdout = mProcess.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(stdout, StandardCharsets.UTF_8));
@@ -30,7 +30,7 @@ public class ScriptPython {
                 System.out.println("stdout: " + line);
             }
         } catch (IOException e) {
-            System.out.println("Exception in reading output" + e.toString());
+            System.out.println("Exception in reading output" + e);
         }
     }
 }

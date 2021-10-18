@@ -3,7 +3,6 @@ package com.meread.selenium.bean;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.socket.WebSocketSession;
 
 /**
  * Created by yangxg on 2021/9/27

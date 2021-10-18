@@ -59,7 +59,7 @@ public class SlideVerifyBlock {
                     }
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     ImageIO.write(read, "png", outputStream);
-                    String markedJpg = "data:image/jpg;base64," + Base64Utils.encodeToString(outputStream.toByteArray());
+                    String markedJpg = "image/jpg;base64," + Base64Utils.encodeToString(outputStream.toByteArray());
                     ((JavascriptExecutor) driver).executeScript("document.getElementById('cpc_img').setAttribute('src','" + markedJpg + "')");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -117,7 +117,7 @@ public class SlideVerifyBlock {
                 if (isDebug) {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     ImageIO.write(read, "png", outputStream);
-                    String markedJpg = "data:image/jpg;base64," + Base64Utils.encodeToString(outputStream.toByteArray());
+                    String markedJpg = "image/jpg;base64," + Base64Utils.encodeToString(outputStream.toByteArray());
                     ((JavascriptExecutor) driver).executeScript("document.getElementById('cpc_img').setAttribute('src','" + markedJpg + "')");
                 }
             } catch (Exception e) {

@@ -1,6 +1,6 @@
 /**
-  * Copyright 2021 bejson.com 
-  */
+ * Copyright 2021 bejson.com
+ */
 package com.meread.selenium.bean.qq;
 
 /**
@@ -25,102 +25,117 @@ public class GroupMessage {
     private String sub_type;
     private long time;
     private long user_id;
+
+    public String getAnonymous() {
+        return anonymous;
+    }
+
     public void setAnonymous(String anonymous) {
-         this.anonymous = anonymous;
-     }
-     public String getAnonymous() {
-         return anonymous;
-     }
+        this.anonymous = anonymous;
+    }
+
+    public int getFont() {
+        return font;
+    }
 
     public void setFont(int font) {
-         this.font = font;
-     }
-     public int getFont() {
-         return font;
-     }
+        this.font = font;
+    }
+
+    public long getGroup_id() {
+        return group_id;
+    }
 
     public void setGroup_id(long group_id) {
-         this.group_id = group_id;
-     }
-     public long getGroup_id() {
-         return group_id;
-     }
+        this.group_id = group_id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 
     public void setMessage(String message) {
-         this.message = message;
-     }
-     public String getMessage() {
-         return message;
-     }
+        this.message = message;
+    }
+
+    public long getMessage_id() {
+        return message_id;
+    }
 
     public void setMessage_id(long message_id) {
-         this.message_id = message_id;
-     }
-     public long getMessage_id() {
-         return message_id;
-     }
+        this.message_id = message_id;
+    }
+
+    public int getMessage_seq() {
+        return message_seq;
+    }
 
     public void setMessage_seq(int message_seq) {
-         this.message_seq = message_seq;
-     }
-     public int getMessage_seq() {
-         return message_seq;
-     }
+        this.message_seq = message_seq;
+    }
+
+    public String getMessage_type() {
+        return message_type;
+    }
 
     public void setMessage_type(String message_type) {
-         this.message_type = message_type;
-     }
-     public String getMessage_type() {
-         return message_type;
-     }
+        this.message_type = message_type;
+    }
+
+    public String getPost_type() {
+        return post_type;
+    }
 
     public void setPost_type(String post_type) {
-         this.post_type = post_type;
-     }
-     public String getPost_type() {
-         return post_type;
-     }
+        this.post_type = post_type;
+    }
+
+    public String getRaw_message() {
+        return raw_message;
+    }
 
     public void setRaw_message(String raw_message) {
-         this.raw_message = raw_message;
-     }
-     public String getRaw_message() {
-         return raw_message;
-     }
+        this.raw_message = raw_message;
+    }
+
+    public long getSelf_id() {
+        return self_id;
+    }
 
     public void setSelf_id(long self_id) {
-         this.self_id = self_id;
-     }
-     public long getSelf_id() {
-         return self_id;
-     }
+        this.self_id = self_id;
+    }
+
+    public Sender getSender() {
+        return sender;
+    }
 
     public void setSender(Sender sender) {
-         this.sender = sender;
-     }
-     public Sender getSender() {
-         return sender;
-     }
+        this.sender = sender;
+    }
+
+    public String getSub_type() {
+        return sub_type;
+    }
 
     public void setSub_type(String sub_type) {
-         this.sub_type = sub_type;
-     }
-     public String getSub_type() {
-         return sub_type;
-     }
+        this.sub_type = sub_type;
+    }
+
+    public long getTime() {
+        return time;
+    }
 
     public void setTime(long time) {
-         this.time = time;
-     }
-     public long getTime() {
-         return time;
-     }
+        this.time = time;
+    }
+
+    public long getUser_id() {
+        return user_id;
+    }
 
     public void setUser_id(long user_id) {
-         this.user_id = user_id;
-     }
-     public long getUser_id() {
-         return user_id;
-     }
+        this.user_id = user_id;
+    }
 
 }

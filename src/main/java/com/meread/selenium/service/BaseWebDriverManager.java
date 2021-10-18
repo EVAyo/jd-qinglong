@@ -38,6 +38,14 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public abstract class BaseWebDriverManager implements WebDriverManager, InitializingBean, ApplicationListener<ContextClosedEvent> {
 
+    /**
+     * chromeSessionId-->MyChrome
+     */
+    protected final Map<String, MyChrome> chromes = Collections.synchronizedMap(new HashMap<>());
+    /**
+     * userTrackId --> MyChromeClient
+     */
+    protected final Map<String, MyChromeClient> clients = Collections.synchronizedMap(new HashMap<>());
     protected String chromeDriverPath;
     protected RestTemplate restTemplate;
     protected ThreadPoolTaskExecutor threadPoolTaskExecutor;
@@ -47,7 +55,13 @@ public abstract class BaseWebDriverManager implements WebDriverManager, Initiali
     protected int opTimeout;
     protected int chromeTimeout;
     protected String maxSessionFromProps;
-
+    protected int CAPACITY = 0;
+    protected Properties properties = new Properties();
+    protected ChromeOptions chromeOptions;
+    protected String maxSessionFromEnvFile;
+    protected List<QLConfig> qlConfigs;
+    protected String xddUrl;
+    protected String xddToken;
     public BaseWebDriverManager(String chromeDriverPath, RestTemplate restTemplate, ThreadPoolTaskExecutor threadPoolTaskExecutor, ResourceLoader resourceLoader, boolean headless, String envPath, int opTimeout, int chromeTimeout, String maxSessionFromProps) {
         this.chromeDriverPath = chromeDriverPath;
         this.restTemplate = restTemplate;
@@ -59,23 +73,6 @@ public abstract class BaseWebDriverManager implements WebDriverManager, Initiali
         this.chromeTimeout = chromeTimeout;
         this.maxSessionFromProps = maxSessionFromProps;
     }
-
-    /**
-     * chromeSessionId-->MyChrome
-     */
-    protected final Map<String, MyChrome> chromes = Collections.synchronizedMap(new HashMap<>());
-    /**
-     * userTrackId --> MyChromeClient
-     */
-    protected final Map<String, MyChromeClient> clients = Collections.synchronizedMap(new HashMap<>());
-
-    protected int CAPACITY = 0;
-    protected Properties properties = new Properties();
-    protected ChromeOptions chromeOptions;
-    protected String maxSessionFromEnvFile;
-    protected List<QLConfig> qlConfigs;
-    protected String xddUrl;
-    protected String xddToken;
 
     protected RemoteWebDriver getDriverBySessionId(String chromeSessionId) {
         MyChrome myChromeBySessionId = getMyChromeBySessionId(chromeSessionId);
@@ -317,7 +314,6 @@ public abstract class BaseWebDriverManager implements WebDriverManager, Initiali
         }
         return qlConfig.getQlToken() != null && qlConfig.getQlToken().getToken() != null;
     }
-
 
 
     public String getXddUrl() {

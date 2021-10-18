@@ -51,7 +51,6 @@ public class QGetNewCkProcessor implements QCommandProcessor {
                 QA qa1 = new QA(System.currentTimeMillis(), "", QCommand.GET_NEW_CK_PHONE, ProcessStatus.WAIT_NEXT_Q);
                 qqAiFlow.getQas().add(qa1);
             } else if (code == 2) {
-                botService.sendMsgWithRetry(senderQQ, "正在生成二维码...");
                 botService.genQQQR(senderQQ, last, true);
                 last.setStatus(ProcessStatus.PROCESSING);
             } else {

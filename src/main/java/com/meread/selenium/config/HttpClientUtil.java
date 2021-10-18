@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class HttpClientUtil {
                     builder.addParameter(key, param.get(key));
                 }
             }
-            builder.setCharset(Charset.forName("utf-8"));
+            builder.setCharset(StandardCharsets.UTF_8);
             URI uri = builder.build();
 
             // 创建http GET请求
@@ -83,7 +84,7 @@ public class HttpClientUtil {
                     paramList.add(new BasicNameValuePair(key, param.get(key)));
                 }
                 // 模拟表单
-                UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList, Charset.forName("UTF-8"));
+                UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList, StandardCharsets.UTF_8);
                 httpPost.setEntity(entity);
             }
 

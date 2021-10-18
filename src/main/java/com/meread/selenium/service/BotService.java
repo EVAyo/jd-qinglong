@@ -39,7 +39,7 @@ public class BotService {
     @Autowired
     private JDService jdService;
 
-    private Map<Long, QQAiFlow> qqAiFlowMap = new HashMap<>();
+    private final Map<Long, QQAiFlow> qqAiFlowMap = Collections.synchronizedMap(new HashMap<>());
 
     public void doSendSMS(long senderQQ, String phone, QA qa) {
         WebSocketSession webSocketSession = CommonAttributes.webSocketSession;
@@ -184,26 +184,27 @@ public class BotService {
         jo.put("echo", UUID.randomUUID().toString().replaceAll("-", ""));
         JSONObject params = new JSONObject();
         params.put("user_id", receiverQQ);
-        params.put("message", content);
+        long opTimeRemain = getOpTimeRemain(receiverQQ);
+        params.put("message", content + (opTimeRemain > 0 ? "\n(剩余操作时间：" + opTimeRemain + ")" : ""));
         jo.put("params", params);
         return jo.toJSONString();
     }
 
-    private String buildPrivateImageMessage(long receiverQQ, String imageBase64) {
-        JSONObject jo = new JSONObject();
-        jo.put("action", "send_private_msg");
-        jo.put("echo", UUID.randomUUID().toString().replaceAll("-", ""));
-        JSONObject params = new JSONObject();
-        params.put("user_id", receiverQQ);
-
-        JSONObject image = new JSONObject();
-        image.put("type", "image");
-        image.put("data", new JSONObject().put("file", "base64://" + imageBase64));
-
-        params.put("message", image.toJSONString());
-        jo.put("params", params);
-        return jo.toJSONString();
-    }
+//    private String buildPrivateImageMessage(long receiverQQ, String imageBase64) {
+//        JSONObject jo = new JSONObject();
+//        jo.put("action", "send_private_msg");
+//        jo.put("echo", UUID.randomUUID().toString().replaceAll("-", ""));
+//        JSONObject params = new JSONObject();
+//        params.put("user_id", receiverQQ);
+//
+//        JSONObject image = new JSONObject();
+//        image.put("type", "image");
+//        image.put("data", new JSONObject().put("file", "base64://" + imageBase64));
+//
+//        params.put("message", image.toJSONString());
+//        jo.put("params", params);
+//        return jo.toJSONString();
+//    }
 
     public String getQLStatus(boolean select) {
         StringBuilder sb = new StringBuilder();
@@ -239,36 +240,34 @@ public class BotService {
         }
         sendMsgWithRetry(senderQQ, "正在上传...");
         threadPoolTaskExecutor.execute(() -> {
-            try {
-                String phone = myChromeClient.getTrackPhone();
-                if (StringUtils.isEmpty(phone)) {
-                    sendMsgWithRetry(senderQQ, "你还没有输入手机号");
-                    return;
-                }
-                String remark = myChromeClient.getTrackRemark();
-                if (StringUtils.isEmpty(remark)) {
-                    sendMsgWithRetry(senderQQ, "你还没有输入备注");
-                    return;
-                }
-                String ck = myChromeClient.getTrackCK();
-                if (StringUtils.isEmpty(ck)) {
-                    sendMsgWithRetry(senderQQ, "你还没有获取到CK");
-                    return;
-                }
-                int qlUploadDirect = 1;
-                JSONObject jsonObject = jdService.uploadQingLong(chooseQLId, phone, remark, ck, myChromeClient.getChromeSessionId(), qlUploadDirect);
-                String html = jsonObject.getString("html");
-                log.info(jsonObject.toJSONString());
-                if (!StringUtils.isEmpty(html)) {
-                    html = html.replaceAll("<br/>", "\n");
-                    sendMsgWithRetry(senderQQ, html);
-                }
-                if (jsonObject.getIntValue("status") > 0) {
-                    qa.setStatus(ProcessStatus.FINISH);
-                }
-            } finally {
-                driverFactory.releaseWebDriver(myChromeClient.getChromeSessionId(), false);
+
+            String phone = myChromeClient.getTrackPhone();
+            if (StringUtils.isEmpty(phone) && myChromeClient.getJdLoginType() == JDLoginType.phone) {
+                sendMsgWithRetry(senderQQ, "你还没有输入手机号");
+                return;
             }
+            String remark = myChromeClient.getTrackRemark();
+            if (StringUtils.isEmpty(remark)) {
+                sendMsgWithRetry(senderQQ, "你还没有输入备注");
+                return;
+            }
+            String ck = myChromeClient.getTrackCK();
+            if (StringUtils.isEmpty(ck)) {
+                sendMsgWithRetry(senderQQ, "你还没有获取到CK");
+                return;
+            }
+            int qlUploadDirect = 1;
+            JSONObject jsonObject = jdService.uploadQingLong(chooseQLId, phone, remark, ck, myChromeClient.getChromeSessionId(), qlUploadDirect);
+            String html = jsonObject.getString("html");
+            log.info(jsonObject.toJSONString());
+            if (!StringUtils.isEmpty(html)) {
+                html = html.replaceAll("<br/>", "\n");
+                sendMsgWithRetry(senderQQ, html);
+            }
+            if (jsonObject.getIntValue("status") > 0) {
+                qa.setStatus(ProcessStatus.FINISH);
+            }
+
         });
     }
 
@@ -383,11 +382,20 @@ public class BotService {
 
     public void exit(long senderQQ) {
         log.info("exit " + senderQQ);
+        qqAiFlowMap.remove(senderQQ);
         MyChromeClient myChromeClient = driverFactory.getCacheMyChromeClient(String.valueOf(senderQQ));
         if (myChromeClient != null) {
-            qqAiFlowMap.remove(senderQQ);
             driverFactory.releaseWebDriver(myChromeClient.getChromeSessionId(), true);
         }
+        sendMsgWithRetry(senderQQ, "已退出");
+    }
+
+    public long getOpTimeRemain(long senderQQ) {
+        MyChromeClient myChromeClient = driverFactory.getCacheMyChromeClient(String.valueOf(senderQQ));
+        if (myChromeClient != null) {
+            return myChromeClient.getExpireSeconds();
+        }
+        return 0;
     }
 
     public void processCubeAuthCode(long senderQQ, String content, QA qa) {
@@ -406,4 +414,15 @@ public class BotService {
             qqAiFlow.getQas().add(qa1);
         }
     }
+
+    public void sendHelpMsg(long senderQQ) {
+        StringBuilder msg = new StringBuilder();
+        for (QCommand qCommand : QCommand.values()) {
+            if (qCommand.getParentCode() == 0) {
+                msg.append(qCommand.getCode()).append(".").append(qCommand.getDesc()).append("\n");
+            }
+        }
+        sendMsgWithRetry(senderQQ, msg.toString());
+    }
+
 }

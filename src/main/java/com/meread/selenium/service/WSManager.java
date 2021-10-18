@@ -19,19 +19,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class WSManager implements DisposableBean {
 
-    @Autowired
-    private JDService jdService;
-
-    @Autowired
-    private BaseWebDriverManager driverManager;
-
-    public volatile boolean runningSchedule = false;
-    public volatile boolean stopSchedule = false;
-
     public final Map<String, Map<String, WebSocketSession>>
             socketSessionPool = new ConcurrentHashMap<>();
-
+    public volatile boolean runningSchedule = false;
+    public volatile boolean stopSchedule = false;
     public Map<String, JDScreenBean> lastPageStatus = new ConcurrentHashMap<>();
+    @Autowired
+    private JDService jdService;
+    @Autowired
+    private BaseWebDriverManager driverManager;
 
     public synchronized void addNew(WebSocketSession session) {
         String webSocketSessionId = session.getId();
@@ -60,7 +56,7 @@ public class WSManager implements DisposableBean {
                 lastPageStatus.remove(httpSessionId);
                 MyChromeClient cacheMyChromeClient = driverManager.getCacheMyChromeClient(httpSessionId);
                 if (cacheMyChromeClient != null) {
-                    driverManager.releaseWebDriver(cacheMyChromeClient.getChromeSessionId(),false);
+                    driverManager.releaseWebDriver(cacheMyChromeClient.getChromeSessionId(), false);
                 }
             }
         }
@@ -97,7 +93,7 @@ public class WSManager implements DisposableBean {
             }
 
             for (String s : removeChromeSessionIds) {
-                driverManager.releaseWebDriver(s,true);
+                driverManager.releaseWebDriver(s, true);
             }
 
             doPushScreen();
@@ -117,7 +113,7 @@ public class WSManager implements DisposableBean {
                 JDScreenBean screen = jdService.getScreen(myChromeClient);
 
                 if (myChromeClient.isExpire()) {
-                    driverManager.releaseWebDriver(myChromeClient.getChromeSessionId(),false);
+                    driverManager.releaseWebDriver(myChromeClient.getChromeSessionId(), false);
                     for (WebSocketSession socketSession : socketSessionMap.values()) {
                         try {
                             socketSession.sendMessage(new TextMessage(JSON.toJSONString(new JDScreenBean("", "", JDScreenBean.PageStatus.SESSION_EXPIRED))));

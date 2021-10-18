@@ -20,67 +20,77 @@ public class Sender {
     private String sex;
     private String title;
     private long user_id;
+
+    public int getAge() {
+        return age;
+    }
+
     public void setAge(int age) {
         this.age = age;
     }
-    public int getAge() {
-        return age;
+
+    public String getArea() {
+        return area;
     }
 
     public void setArea(String area) {
         this.area = area;
     }
-    public String getArea() {
-        return area;
+
+    public String getCard() {
+        return card;
     }
 
     public void setCard(String card) {
         this.card = card;
     }
-    public String getCard() {
-        return card;
+
+    public String getLevel() {
+        return level;
     }
 
     public void setLevel(String level) {
         this.level = level;
     }
-    public String getLevel() {
-        return level;
+
+    public String getNickname() {
+        return nickname;
     }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
-    public String getNickname() {
-        return nickname;
+
+    public String getRole() {
+        return role;
     }
 
     public void setRole(String role) {
         this.role = role;
     }
-    public String getRole() {
-        return role;
+
+    public String getSex() {
+        return sex;
     }
 
     public void setSex(String sex) {
         this.sex = sex;
     }
-    public String getSex() {
-        return sex;
+
+    public String getTitle() {
+        return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
     }
-    public String getTitle() {
-        return title;
+
+    public long getUser_id() {
+        return user_id;
     }
 
     public void setUser_id(long user_id) {
         this.user_id = user_id;
-    }
-    public long getUser_id() {
-        return user_id;
     }
 
 }

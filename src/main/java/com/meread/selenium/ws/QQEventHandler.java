@@ -18,18 +18,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 @Component
 @Slf4j
@@ -95,8 +94,8 @@ public class QQEventHandler extends TextWebSocketHandler {
 
         log.info("payload = " + payload);
 
-        String content = null;
-        long senderQQ = 0;
+        String content;
+        long senderQQ;
 
         JSONObject jo = new JSONObject();
         jo.put("action", "send_private_msg");
@@ -131,6 +130,22 @@ public class QQEventHandler extends TextWebSocketHandler {
             return;
         }
 
+        if (StringUtils.isEmpty(content)) {
+            return;
+        }
+
+        if ("help".equals(content) || "h".equals(content) || String.valueOf(QCommand.HELP.getCode()).equals(content)) {
+            botService.sendHelpMsg(senderQQ);
+            return;
+        } else if ("quit".equals(content) || "q".equals(content) || String.valueOf(QCommand.EXIT.getCode()).equals(content)) {
+            botService.exit(senderQQ);
+            return;
+        } else if (String.valueOf(QCommand.QL_STATUS.getCode()).equals(content)) {
+            String qlStatus = botService.getQLStatus(false);
+            botService.sendMsgWithRetry(senderQQ, qlStatus);
+            return;
+        }
+
         QQAiFlow qqAiFlow = botService.getQqAiFlowMap().get(senderQQ);
         QCommand topCommand = null;
         if (qqAiFlow != null) {
@@ -139,32 +154,36 @@ public class QQEventHandler extends TextWebSocketHandler {
             if (qa == null) {
                 log.info("会话异常结束");
                 botService.getQqAiFlowMap().remove(senderQQ);
-                sendMessage(session, senderQQ, jo, params, "会话异常结束");
+                botService.sendMsgWithRetry(senderQQ, "会话异常结束");
                 return;
             }
             topCommand = qa.getTopCommand();
         } else {
+
+            boolean contains = QCommand.getCodeList().contains(content);
+            if (!contains) {
+                if ("private".equals(message_type)) {
+                    botService.sendMsgWithRetry(senderQQ, "不支持的指令");
+                }
+                return;
+            }
+
             qqAiFlow = new QQAiFlow();
             qqAiFlow.setSenderQQ(senderQQ);
             List<QA> qas = new ArrayList<>();
             QA qa = new QA();
-            if ("help".equals(content) || "h".equals(content)) {
-                topCommand = QCommand.HELP;
-            } else {
-                int code = 0;
-                try {
-                    code = Integer.parseInt(content);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                    sendMessage(session, senderQQ, jo, params, "输入有误，请输入数字");
-                    return;
-                }
-                topCommand = QCommand.parse(code);
+            int code = 0;
+            try {
+                code = Integer.parseInt(content);
+            } catch (NumberFormatException e) {
+                botService.sendMsgWithRetry(senderQQ, "输入有误，请输入数字");
+                return;
             }
+            topCommand = QCommand.parse(code);
 
             if (topCommand == null || topCommand.getParentCode() != 0) {
                 if ("private".equals(message_type)) {
-                    sendMessage(session, senderQQ, jo, params, "输入有误");
+                    botService.sendMsgWithRetry(senderQQ, "输入有误");
                 }
                 return;
             }
@@ -183,65 +202,14 @@ public class QQEventHandler extends TextWebSocketHandler {
             } catch (Exception e) {
                 e.printStackTrace();
                 if (e instanceof NumberFormatException) {
-                    sendMessage(session, senderQQ, jo, params, "输入有误");
+                    botService.sendMsgWithRetry(senderQQ, "输入有误");
                 }
             }
             botService.getQqAiFlowMap().put(senderQQ, qqAiFlow);
-        } else if (topCommand == QCommand.HELP) {
-            StringBuilder msg = new StringBuilder();
-            for (QCommand qCommand : QCommand.values()) {
-                if (qCommand.getParentCode() == 0) {
-                    msg.append(qCommand.getCode()).append(".").append(qCommand.getDesc()).append("\n");
-                }
-            }
-            sendMessage(session, senderQQ, jo, params, msg.toString());
-        } else if (topCommand == QCommand.EXIT) {
-            log.info("TODO 处理退出");
         }
-
-//        params.put("user_id", senderQQ);
-//        Matcher matcher = PATTERN.matcher(content);
-//        Matcher matcher2 = PATTERN2.matcher(content);
-//        Matcher matcher3 = PATTERN3.matcher(content);
-//        Matcher matcher4 = PATTERN4.matcher(content);
-//        if ("帮助".equals(content) || "help".equals(content) || "h".equals(content) || "hello".equals(content)) {
-//            params.put("message", "看文档吧");
-//        } else if ("登录".equals(content) || "登陆".equals(content)) {
-//            log.info("处理" + senderQQ + "登录逻辑...");
-//            params.put("message", "请输入手机号：");
-//        } else if (matcher.matches()) {
-//            log.info("处理给手机号" + content + "发验证码逻辑");
-//            botService.doSendSMS(senderQQ, content);
-//        } else if (matcher2.matches()) {
-//            log.info("接受了验证码" + content + "，处理登录逻辑");
-//            botService.doLogin(senderQQ, content);
-//        } else if ("青龙状态".equals(content)) {
-//            String qlStatus = botService.getQLStatus(false);
-//            params.put("message", qlStatus);
-//        } else if (matcher3.matches()) {
-//            char[] chars = matcher3.group(1).toCharArray();
-//            Set<Integer> qlIds = new HashSet<>();
-//            for (char c : chars) {
-//                int qlId = Integer.parseInt(String.valueOf(c));
-//                qlIds.add(qlId);
-//            }
-//            botService.doUploadQinglong(senderQQ, qlIds);
-//        } else if (matcher4.matches()) {
-//            String remark = matcher4.group(1);
-//            botService.trackRemark(senderQQ, remark);
-//        }
-//        if (!StringUtils.isEmpty(params.getString("message"))) {
-//            //随机间隔时间
 //            int max = 8, min = 1;
 //            int random = (int) (Math.random() * (max - min) + min);
 //            Thread.sleep(random * 300L);
 //            session.sendMessage(new TextMessage(jo.toJSONString()));
-//        }
-    }
-
-    private void sendMessage(WebSocketSession session, long senderQQ, JSONObject jo, JSONObject params, String s) throws IOException {
-        params.put("user_id", senderQQ);
-        params.put("message", s);
-        session.sendMessage(new TextMessage(jo.toJSONString()));
     }
 }

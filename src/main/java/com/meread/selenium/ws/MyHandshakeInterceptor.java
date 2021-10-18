@@ -1,6 +1,5 @@
 package com.meread.selenium.ws;
 
-import com.alibaba.fastjson.JSON;
 import com.meread.selenium.util.CommonAttributes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
@@ -16,6 +15,7 @@ import java.util.Map;
 
 /**
  * 类描述：拦截器
+ *
  * @author yangxg
  */
 @Component

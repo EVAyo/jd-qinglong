@@ -1,7 +1,7 @@
 /*
- * 
- * 
- * 
+ *
+ *
+ *
  */
 package com.meread.selenium.util;
 
@@ -50,7 +50,7 @@ public final class FreemarkerUtils {
                             super.register(arrayConverter, type);
                         }
                         Converter converter = super.lookup(type);
-                        return ((String) converter.convert(String.class, value));
+                        return converter.convert(String.class, value);
                     }
                 }
                 return super.convert(value);

@@ -49,8 +49,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.meread.selenium.util.CommonAttributes.mockCaptcha;
-
 /**
  * Created by yangxg on 2021/9/1
  *

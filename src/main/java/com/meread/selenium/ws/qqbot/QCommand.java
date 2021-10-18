@@ -1,5 +1,8 @@
 package com.meread.selenium.ws.qqbot;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author yangxg
  * @date 2021/10/17
@@ -17,11 +20,12 @@ public enum QCommand {
     GET_NEW_CK_QLID("获取CK-接收青龙配置id", 9, 8),
 
     EXIT("直接退出", 10, 0),
-    HELP("帮助菜单", 11, 0);
+    HELP("帮助菜单", 11, 0),
+    QL_STATUS("青龙状态", 12, 0);
 
-    private String desc;
-    private int code;
-    private int parentCode;
+    private final String desc;
+    private final int code;
+    private final int parentCode;
 
     QCommand(String desc, int code, int parentCode) {
         this.parentCode = parentCode;
@@ -36,6 +40,14 @@ public enum QCommand {
             }
         }
         return null;
+    }
+
+    public static Set<String> getCodeList() {
+        Set<String> res = new HashSet<>();
+        for (QCommand qc : QCommand.values()) {
+            res.add(String.valueOf(qc.getCode()));
+        }
+        return res;
     }
 
     public String getDesc() {
